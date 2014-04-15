@@ -57,7 +57,7 @@ local fields =
 {
   key = function(n) return ffi.string(n._key) end,
   value = function(n) return ffi.string(n._value) end,
-  user = function(n) return ffi.string(n._user) end,
+  user = function(n) return n._user == nil and "" or ffi.string(n._user) end,
   role = function(n) return ffi.string(n._role) end,
   member_type = function(n) return cd.member_map(n._member_type) end,
   timestamp = function(n)
@@ -116,6 +116,7 @@ ffi.metatype("readosm_tag",      node_metatable)
 ffi.metatype("readosm_node",     node_metatable)
 ffi.metatype("readosm_way",      node_metatable)
 ffi.metatype("readosm_relation", node_metatable)
+ffi.metatype("readosm_member",   node_metatable)
 
 
 local function parse(h, filename, callback)
