@@ -39,6 +39,11 @@ are available with an underscore prefixed to the name
 The Lua tables derived from the underlying FFI data are only created on demand,
 so doing nothing while parsing an entire file creates no garbage.
 
+You can ask readosm to only read certain types of elements with a second
+argument to open.  For example `readosm.open("map.pbf", "ways")` will read
+only ways, and `ways,relations` will read only ways and relations.
+Only reading the parts of the file you need can make things *much* faster.
+
 
 ## 3. Requirements
 

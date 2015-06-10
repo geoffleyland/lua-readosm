@@ -34,14 +34,30 @@ local osmfile = {}
 osmfile.__index = osmfile
 
 
+local no_config =
+{
+  nodes         = true,
+  ways          = true,
+  relations     = true,
+}
+
+
 --- Open an OSM file
 --  The file must have an .osm (XML) or .pbf extension
 --  @return file object
-local function open(filename)
+local function open(filename, what)
   local h = ffi.cast("const void**", ffi.new("void*[1]"))
   local result = RO.readosm_open(filename, h)
   if result == cd.constants.READOSM_OK then
-    return setmetatable({ handle=h[0], filename=filename}, osmfile)
+    what = what and what:lower()
+    config = not what and no_config or
+    {
+      nodes       = what:find("node"),
+      ways        = what:find("way"),
+      relations   = what:find("relation"),
+    }
+
+    return setmetatable({ handle=h[0], filename=filename, config=config}, osmfile)
   else
     error(("osmread error reading '%s': %s"):
           format(filename, cd.error_map[result]))
@@ -119,30 +135,23 @@ ffi.metatype("readosm_relation", node_metatable)
 ffi.metatype("readosm_member",   node_metatable)
 
 
-local function parse(h, filename, callback)
-  local function node_callback(_, o)
-    if callback("node", o) == false then
-      return cd.constants.READOSM_ABORT
-    end
-    return cd.constants.READOSM_OK
-  end
-  local function way_callback(_, o)
-    if callback("way", o) == false then
-      return cd.constants.READOSM_ABORT
-    end
-    return cd.constants.READOSM_OK
-  end
-  local function relation_callback(_, o)
-    if callback("relation", o) == false then
-      return cd.constants.READOSM_ABORT
-    end
-    return cd.constants.READOSM_OK
-  end   
+local OK, ABORT = cd.constants.READOSM_OK, cd.constants.READOSM_ABORT
 
-  local result = RO.readosm_parse(h, ffi.cast("void*", 0),
-    node_callback, way_callback, relation_callback)
+local function parse(h, filename, config, cb)
 
-  if result ~= cd.constants.READOSM_OK then
+  local function wrap(r) return r == false and ABORT or OK end
+
+  local function node_cb(_, o) return wrap(cb("node",      o)) end
+  local function way_cb (_, o) return wrap(cb("way",       o)) end
+  local function rel_cb (_, o) return wrap(cb("relation",  o)) end
+
+  local ok = RO.readosm_parse(h, ffi.cast("void*", 0),
+    config.nodes and node_cb or nil,
+    config.ways and way_cb or nil,
+    config.relations and rel_cb or nil)
+--  local ok = RO.readosm_parse(h, ffi.cast("void*", 0), ffi.cast("readosm_node_callback", 0), ffi.cast("readosm_way_callback", 0), ffi.cast("readosm_relation_callback", 0))
+
+  if ok ~= OK then
     error(("osmread error parsing '%s': %s"):
           format(filename, cd.error_map[result]))
   end
@@ -150,7 +159,7 @@ end
 
 
 function osmfile:parse(callback)
-  return parse(self.handle, self.filename, callback)
+  return parse(self.handle, self.filename, self.config, callback)
 end
 
 
@@ -161,7 +170,7 @@ function osmfile:lines()
   return coroutine.wrap(
     function()
         parse(self.handle, self.filename,
-          function(type, o) coroutine.yield(type, o) end) 
+          function(type, o) coroutine.yield(type, o) end)
       end)
 end
 --]]
