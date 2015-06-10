@@ -4,7 +4,7 @@
 
 Lua-readosm is a binding to
 [readosm](https://www.gaia-gis.it/fossil/readosm/index) for reading
-[OpenStreetMap](http://www.openstreetmap.org) data in XML and
+[OpenStreetMap](http://www.openstreetmap.org) (OSM) data in XML and
 [PBF](http://wiki.openstreetmap.org/wiki/PBF_Format) formats.
 
 As such it tries to follow the readosm API fairly closely, except that
@@ -23,9 +23,10 @@ put together a "classic" binding.
     local readosm = require("readosm")
     local f = readosm.open("map.pbf")
     f:parse(function(type, object)
-      print(type)
-      for k, v in pairs(object.tags) do print(k, v) end
-    end
+        print(type)
+        for k, v in pairs(object.tags) do print(k, v) end
+      end)
+    f:close()
 
 The field names in the data object are the same as for readosm's C API,
 however, the fields have been converted to appropriate Lua types.
@@ -33,7 +34,10 @@ however, the fields have been converted to appropriate Lua types.
 In the case of the FFI binding (ie, the only one) the objects passed are
 cdata structs with metatables.  The raw fields for, for example, the tags
 are available with an underscore prefixed to the name
-(that is, `object._tags` is a `readosm_tag *` and object.tags in a Lua table)
+(that is, `object._tags` is a `readosm_tag *` and object.tags in a Lua table).
+
+The Lua tables derived from the underlying FFI data are only created on demand,
+so doing nothing while parsing an entire file creates no garbage.
 
 
 ## 3. Requirements
@@ -61,6 +65,6 @@ LuaJIT for now.
 + There are plenty of XML parsers available.
 + PBF is based on [Protocol Buffers](https://code.google.com/p/protobuf/)
   and there's a Lua library for reading Protocol Buffers
-  [here](https://github.com/Neopallium/lua-pb)
+  [here](https://github.com/Neopallium/lua-pb).
 + You can download OSM data in other formats from a variety of providers,
-  for example, [here](http://www.geofabrik.de/data/shapefiles.html)
+  for example, [here](http://www.geofabrik.de/data/shapefiles.html).
