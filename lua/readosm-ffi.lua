@@ -77,17 +77,7 @@ local fields =
   role = function(n) return ffi.string(n._role) end,
   member_type = function(n) return cd.member_map(n._member_type) end,
   timestamp = function(n)
-      local ts = ffi.string(n._timestamp)
-      local y, m, d, H, M, S =
-        ts:match("(%d%d%d%d)%-(%d%d)%-(%d%d)T(%d%d):(%d%d):(%d%d)Z")
-      return os.time{
-        year = tonumber(y),
-        month = tonumber(m),
-        day = tonumber(d),
-        hour = tonumber(H),
-        min = tonumber(M),
-        sec = tonumber(S),
-      }
+      return ffi.string(n._timestamp)
     end,
   tags = function(n)
       local tc = tag_cache[n.id]
