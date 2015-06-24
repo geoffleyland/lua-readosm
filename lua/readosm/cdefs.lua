@@ -18,7 +18,7 @@ typedef struct readosm_node_struct
   const int version;
   const long long changeset;
   const char *_user;
-  const int uid;
+  const int _uid;
   const char *_timestamp;
   const int tag_count;
   const readosm_tag *_tags;
@@ -30,7 +30,7 @@ typedef struct readosm_way_struct
   const int version;
   const long long changeset;
   const char *_user;
-  const int uid;
+  const int _uid;
   const char *_timestamp;
   const int node_ref_count;
   const long long *_node_refs;
@@ -51,7 +51,7 @@ typedef struct readosm_relation_struct
   const int version;
   const long long changeset;
   const char *_user;
-  const int uid;
+  const int _uid;
   const char *_timestamp;
   const int member_count;
   const readosm_member *_members;

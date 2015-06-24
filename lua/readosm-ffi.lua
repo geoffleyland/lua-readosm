@@ -74,6 +74,9 @@ local fields =
   key = function(n) return ffi.string(n._key) end,
   value = function(n) return ffi.string(n._value) end,
   user = function(n) return n._user == nil and "" or ffi.string(n._user) end,
+  uid = function(n) return math.max(-1, n._uid) end, --readosm returns -1234567890,
+                                                     --but the .pbf contains -1 so
+                                                     --let's match that.
   role = function(n) return ffi.string(n._role) end,
   member_type = function(n) return cd.member_map[n._member_type] end,
   timestamp = function(n)

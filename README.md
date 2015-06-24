@@ -44,6 +44,10 @@ argument to open.  For example `readosm.open("map.pbf", "ways")` will read
 only ways, and `ways,relations` will read only ways and relations.
 Only reading the parts of the file you need can make things *much* faster.
 
+readosm returns -1234567890 when the uid field is undefined.
+lua-readosm returns -1, which matches what is in the PBF file (if you're
+reading PBF).
+
 
 ## 3. Requirements
 
