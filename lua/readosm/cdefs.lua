@@ -97,6 +97,12 @@ local C =
 
 local M =
 {
+  -- it looks like readosm returns different values depending whether it's
+  -- reading pbf (0, 1, 2) or XML (the defines)
+  [0]                                   = "node",
+  [1]                                   = "way",
+  [2]                                   = "relation",
+
   [C.READOSM_UNDEFINED]                 = "undefined",
   [C.READOSM_MEMBER_NODE]               = "node",
   [C.READOSM_MEMBER_WAY]                = "way",

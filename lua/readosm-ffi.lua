@@ -75,7 +75,7 @@ local fields =
   value = function(n) return ffi.string(n._value) end,
   user = function(n) return n._user == nil and "" or ffi.string(n._user) end,
   role = function(n) return ffi.string(n._role) end,
-  member_type = function(n) return cd.member_map(n._member_type) end,
+  member_type = function(n) return cd.member_map[n._member_type] end,
   timestamp = function(n)
       return ffi.string(n._timestamp)
     end,
@@ -139,7 +139,6 @@ local function parse(h, filename, config, cb)
     config.nodes and node_cb or nil,
     config.ways and way_cb or nil,
     config.relations and rel_cb or nil)
---  local ok = RO.readosm_parse(h, ffi.cast("void*", 0), ffi.cast("readosm_node_callback", 0), ffi.cast("readosm_way_callback", 0), ffi.cast("readosm_relation_callback", 0))
 
   if ok ~= OK then
     error(("osmread error parsing '%s': %s"):
