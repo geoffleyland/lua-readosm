@@ -44,17 +44,41 @@ argument to open.  For example `readosm.open("map.pbf", "ways")` will read
 only ways, and `ways,relations` will read only ways and relations.
 Only reading the parts of the file you need can make things *much* faster.
 
-readosm returns -1234567890 when the uid field is undefined.
+
+## 3. Differences from readosm
+
+readosm uses `READOSM_UNDEFINED` (-1234567890) when the uid field is undefined.
 lua-readosm returns -1, which matches what is in the PBF file (if you're
 reading PBF).
+I'm not sure that deviating here is a good idea, so if you care about uids
+(I don't for what I do), it would probably be best to check for uid < 0.
+
+lua-readosm returns a string for the `member_type` field of a relation,
+rather than `READOSM_MEMBER_{NODE,WAY,RELATION}`.
+It just seems more Lua-y to do that.
 
 
-## 3. Requirements
+## 4. Here be dragons!
+
+OSM ids are *nearly* but not actually unique across nodes, ways and relations.
+It's possible to have a node and a way with the same id.
+I did not realise this until recently
+(since collisions are rare, but do happen)
+and so have been working on slightly wrong data for a couple of years.
+
+
+## 5. Requirements
 
 LuaJIT for now.
+If there's interest, I could write a "classic" Lua binding,
+but 6 months in, it has two stars and no forks on github,
+so I'm not feeling a lot of demand.
+
+Kind-of obviously, you need to install readosm, and the rock won't do
+that for you.
 
 
-## 4. Issues
+## 6. Issues
 
 + Because readosm uses callbacks and because it's not possible to yield
   across C boundaries, lua-readosm uses a parse function with a callback,
@@ -63,13 +87,13 @@ LuaJIT for now.
   require a ground-up rewrite of both the XML and PBF parsers.
 
 
-## 5. Wishlist
+## 7. Wishlist
 
 + Tests would be nice.
 + So would better documentation.
 
 
-## 6. Alternatives
+## 8. Alternatives
 
 + There are plenty of XML parsers available.
 + PBF is based on [Protocol Buffers](https://code.google.com/p/protobuf/)
@@ -77,3 +101,9 @@ LuaJIT for now.
   [here](https://github.com/Neopallium/lua-pb).
 + You can download OSM data in other formats from a variety of providers,
   for example, [here](http://www.geofabrik.de/data/shapefiles.html).
++ I wrote another PBF (but not XML) OSM reader as part of
+  [lua-osm-tools](https://github.com/geoffleyland/lua-osm-tools)
+  in the hopes that a "pure"(ish) Lua implementation would give LuaJIT more
+  chances for optimisation.
+  It does, so they work out about the same speed :-).
+
